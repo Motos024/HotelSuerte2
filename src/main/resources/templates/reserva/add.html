@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout}">
+    <head>
+        <title>[[#{reserva.add.headline}]]</title>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <div class="flex flex-wrap mb-6">
+                <h1 class="grow text-3xl md:text-4xl font-medium mb-2">[[#{reserva.add.headline}]]</h1>
+                <div>
+                    <a th:href="@{/reservas}" class="inline-block text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-200 focus:ring-4 rounded px-5 py-2">[[#{reserva.add.back}]]</a>
+                </div>
+            </div>
+            <div th:replace="~{fragments/forms::globalErrors('reserva')}" />
+            <form th:action="${requestUri}" method="post">
+                <div th:replace="~{fragments/forms::inputRow(object='reserva', field='precioFinal', required=true)}" />
+                <div th:replace="~{fragments/forms::inputRow(object='reserva', field='adulto', required=true, type='number')}" />
+                <div th:replace="~{fragments/forms::inputRow(object='reserva', field='ninos', required=true, type='number')}" />
+                <div th:replace="~{fragments/forms::inputRow(object='reserva', field='fechaInicio', required=true)}" />
+                <div th:replace="~{fragments/forms::inputRow(object='reserva', field='fechaFin', required=true)}" />
+                <div th:replace="~{fragments/forms::inputRow(object='reserva', field='usuario', type='select')}" />
+                <div th:replace="~{fragments/forms::inputRow(object='reserva', field='habitacion', type='select')}" />
+                <div th:replace="~{fragments/forms::inputRow(object='reserva', field='descuento', type='select')}" />
+                <input type="submit" th:value="#{reserva.add.headline}" class="inline-block text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-300  focus:ring-4 rounded px-5 py-2 mt-6" />
+            </form>
+        </div>
+    </body>
+</html>

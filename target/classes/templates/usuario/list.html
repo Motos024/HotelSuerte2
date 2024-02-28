@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout}">
+    <head>
+        <title>[[#{usuario.list.headline}]]</title>
+    </head>
+    <body>
+        <div layout:fragment="content">
+            <div class="flex flex-wrap mb-6">
+                <h1 class="grow text-3xl md:text-4xl font-medium mb-2">[[#{usuario.list.headline}]]</h1>
+                <div>
+                    <a th:href="@{/usuarios/add}" class="inline-block text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-300  focus:ring-4 rounded px-5 py-2">[[#{usuario.list.createNew}]]</a>
+                </div>
+            </div>
+            <div th:if="${usuarios.empty}">[[#{usuario.list.empty}]]</div>
+            <div th:if="${!usuarios.empty}" class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-left p-2">[[#{usuario.idUsuario.label}]]</th>
+                            <th scope="col" class="text-left p-2">[[#{usuario.nombre.label}]]</th>
+                            <th scope="col" class="text-left p-2">[[#{usuario.apellido.label}]]</th>
+                            <th scope="col" class="text-left p-2">[[#{usuario.contrasena.label}]]</th>
+                            <th scope="col" class="text-left p-2">[[#{usuario.email.label}]]</th>
+                            <th scope="col" class="text-left p-2">[[#{usuario.telefono.label}]]</th>
+                            <th scope="col" class="text-left p-2">[[#{usuario.rol.label}]]</th>
+                            <th><!-- --></th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-t-2 border-black">
+                        <tr th:each="usuario : ${usuarios}" class="odd:bg-gray-100">
+                            <td class="p-2">[[${usuario.idUsuario}]]</td>
+                            <td class="p-2">[[${usuario.nombre}]]</td>
+                            <td class="p-2">[[${usuario.apellido}]]</td>
+                            <td class="p-2">[[${usuario.contrasena}]]</td>
+                            <td class="p-2">[[${usuario.email}]]</td>
+                            <td class="p-2">[[${usuario.telefono}]]</td>
+                            <td class="p-2">[[${usuario.rol}]]</td>
+                            <td class="p-2">
+                                <div class="float-right whitespace-nowrap">
+                                    <a th:href="@{/usuarios/edit/{idUsuario}(idUsuario=${usuario.idUsuario})}" class="inline-block text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-200 focus:ring-3 rounded px-2.5 py-1.5 text-sm">[[#{usuario.list.edit}]]</a>
+                                    <form th:action="@{/usuarios/delete/{idUsuario}(idUsuario=${usuario.idUsuario})}"
+                                            th:hx-confirm="#{delete.confirm}" method="post" class="inline">
+                                        <button type="submit" class="inline-block text-white bg-gray-500 hover:bg-gray-600 focus:ring-gray-200 focus:ring-3 rounded px-2.5 py-1.5 text-sm">[[#{usuario.list.delete}]]</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
