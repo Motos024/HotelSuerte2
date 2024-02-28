@@ -17,7 +17,7 @@
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='idUsuario', disabled=true, type='number')}" />
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='nombre', required=true)}" />
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='apellido', required=true)}" />
-                <div th:replace="~{fragments/forms::inputRow(object='usuario', field='contrasena', required=true)}" />
+                <div th:replace="~{fragments/forms::inputRow(object='usuario', field='contrasena', required=true, type='password')}" />
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='email', required=true)}" />
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='telefono')}" />
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='rol', type='select')}" />

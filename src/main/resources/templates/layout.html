@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
     <head>
@@ -61,3 +62,57 @@
         </main>
     </body>
 </html>
+-->
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <title layout:title-pattern="$CONTENT_TITLE | $LAYOUT_TITLE">[[#{app.title}]]</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link th:if="${!isDevserver}" th:href="@{/css/bundle.css}" rel="stylesheet" />
+    <script th:src="@{/js/bundle.js}" defer></script>
+</head>
+<body hx-boost="true">
+<header class="bg-gray-50">
+    <!-- Contenido del header anterior aquí -->
+
+    <!-- Opciones de sesión -->
+    <div class="text-right pr-4">
+        <!-- Si el usuario no está autenticado, muestra Iniciar sesión y Registrar -->
+        <div th:if="!${#authorization.expression('isAuthenticated()')}">
+            <a th:if="${!#authorization.expression('isAuthenticated()')}" href="/login" class="inline-block bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700">Iniciar sesión</a>
+            <a th:if="${!#authorization.expression('isAuthenticated()')}" href="/usuarios/add" class="inline-block bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700">Registrarse</a>
+            <a th:if="${!#authorization.expression('isAuthenticated()')}" href="/usuarios/add" class="inline-block bg-green-500 text-white py-2 px-4 rounded hover:bg-green-700">Reservar</a>
+        </div>
+
+        <!-- Si el usuario está autenticado como Cliente, muestra Reserva -->
+        <div th:if="${#authorization.expression('hasRole(''ROLE_Cliente'')')}">
+            <a th:href="@{/reservas/add}" class="text-gray-500 p-2">Reservar</a>
+        </div>
+
+        <!-- Si el usuario está autenticado como Admin, muestra Administrar -->
+        <div th:if="${#authorization.expression('hasRole(''ROLE_Admin'')')}">
+            <a th:if="${#authorization.expression('hasRole(''ROLE_Admin'')')}" href="/admin" class="inline-block bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700">Administración</a>
+        </div>
+
+        <!-- Si el usuario está autenticado, muestra Cerrar sesión -->
+        <div th:if="${#authorization.expression('isAuthenticated()')}">
+            <form th:action="@{/logout}" method="post">
+                <input type="submit" value="Cerrar sesión" class="cursor-pointer bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"/>
+            </form>
+        </div>
+    </div>
+</header>
+
+<main class="my-12">
+    <div class="container px-4 md:px-6">
+        <p th:if="${MSG_SUCCESS}" class="bg-green-200 border-green-800 text-green-800 border rounded p-4 mb-6" role="alert">[[${MSG_SUCCESS}]]</p>
+        <p th:if="${MSG_INFO}" class="bg-blue-200 border-blue-800 text-blue-800 border rounded p-4 mb-6" role="alert">[[${MSG_INFO}]]</p>
+        <p th:if="${MSG_ERROR}" class="bg-red-200 border-red-800 text-red-800 border rounded p-4 mb-6" role="alert">[[${MSG_ERROR}]]</p>
+        <div layout:fragment="content" />
+    </div>
+</main>
+</body>
+</html>
+

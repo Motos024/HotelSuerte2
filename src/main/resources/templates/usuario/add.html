@@ -3,6 +3,8 @@
         layout:decorate="~{layout}">
     <head>
         <title>[[#{usuario.add.headline}]]</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
     </head>
     <body>
         <div layout:fragment="content">
@@ -18,8 +20,11 @@
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='apellido', required=true)}" />
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='contrasena', required=true)}" />
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='email', required=true)}" />
+                <div th:if="${emailError}" class="alert alert-danger">
+                    <p th:text="${emailError}"></p>
+                </div>
                 <div th:replace="~{fragments/forms::inputRow(object='usuario', field='telefono')}" />
-                <div th:replace="~{fragments/forms::inputRow(object='usuario', field='rol', type='select')}" />
+
                 <input type="submit" th:value="#{usuario.add.headline}" class="inline-block text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-300  focus:ring-4 rounded px-5 py-2 mt-6" />
             </form>
         </div>

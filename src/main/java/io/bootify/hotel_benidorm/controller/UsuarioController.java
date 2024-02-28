@@ -53,6 +53,27 @@ public class UsuarioController {
 
     @PostMapping("/add")
     public String add(@ModelAttribute("usuario") @Valid final UsuarioDTO usuarioDTO,
+                      final BindingResult bindingResult, final RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "usuario/add";
+        }
+        try {
+            if (usuarioService.emailExists(usuarioDTO.getEmail())) {
+                bindingResult.rejectValue("email", "error.usuario", "El email ya está en uso");
+                return "usuario/add";
+            }
+            usuarioService.create(usuarioDTO);
+            redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, WebUtils.getMessage("usuario.create.success"));
+            return "redirect:/usuarios";
+        } catch (Exception e) {
+            bindingResult.rejectValue("email", "error.usuario", "Error al registrar el usuario: " + e.getMessage());
+            return "usuario/add";
+        }
+    }
+
+
+    /*@PostMapping("/add")
+    public String add(@ModelAttribute("usuario") @Valid final UsuarioDTO usuarioDTO,
             final BindingResult bindingResult, final RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "usuario/add";
@@ -60,7 +81,7 @@ public class UsuarioController {
         usuarioService.create(usuarioDTO);
         redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, WebUtils.getMessage("usuario.create.success"));
         return "redirect:/usuarios";
-    }
+    }*/
 
     @GetMapping("/edit/{idUsuario}")
     public String edit(@PathVariable(name = "idUsuario") final Integer idUsuario,

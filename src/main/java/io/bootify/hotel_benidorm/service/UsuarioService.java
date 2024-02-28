@@ -10,8 +10,6 @@ import io.bootify.hotel_benidorm.repos.UsuarioRepository;
 import io.bootify.hotel_benidorm.util.NotFoundException;
 import io.bootify.hotel_benidorm.util.ReferencedWarning;
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,8 +48,16 @@ public class UsuarioService {
     }
 
     public Integer create(final UsuarioDTO usuarioDTO) {
+        // Verifica si ya existe un usuario con el mismo email
+        usuarioRepository.findByEmail(usuarioDTO.getEmail()).ifPresent(usuario -> {
+            throw new RuntimeException("Ya existe un usuario con el email proporcionado"); // Usa una excepción más específica según tu diseño
+        });
         final Usuario usuario = new Usuario();
         mapToEntity(usuarioDTO, usuario);
+        // Asignar rol "Cliente" por defecto
+        Rol rolCliente = rolRepository.findByTipoRol("Cliente")
+                .orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
+        usuario.setRol(rolCliente);
         // Cifrar la contraseña antes de guardar
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         return usuarioRepository.save(usuario).getIdUsuario();
@@ -77,7 +83,7 @@ public class UsuarioService {
         usuarioDTO.setNombre(usuario.getNombre());
         usuarioDTO.setApellido(usuario.getApellido());
         // No devolver la contraseña
-        usuarioDTO.setContrasena(null); // O simplemente omite esta línea
+        usuarioDTO.setContrasena(null);
         usuarioDTO.setEmail(usuario.getEmail());
         usuarioDTO.setTelefono(usuario.getTelefono());
         usuarioDTO.setRol(usuario.getRol() == null ? null : usuario.getRol().getIdRol());
@@ -108,5 +114,7 @@ public class UsuarioService {
         }
         return null;
     }
-
+    public boolean emailExists(String email) {
+        return usuarioRepository.findByEmail(email).isPresent();
+    }
 }

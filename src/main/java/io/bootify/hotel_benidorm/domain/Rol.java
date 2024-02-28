@@ -8,12 +8,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import java.util.Set;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor // Para el constructor sin argumentos
+@RequiredArgsConstructor // Para el constructor con campos requeridos
 public class Rol {
 
     @Id
@@ -21,6 +26,7 @@ public class Rol {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idRol;
 
+    @NonNull // Marca tipoRol como necesario para el constructor @RequiredArgsConstructor
     @Column(nullable = false)
     private String tipoRol;
 

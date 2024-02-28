@@ -3,6 +3,7 @@
         layout:decorate="~{layout}">
     <head>
         <title>[[#{usuario.list.headline}]]</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     </head>
     <body>
         <div layout:fragment="content">
@@ -20,7 +21,7 @@
                             <th scope="col" class="text-left p-2">[[#{usuario.idUsuario.label}]]</th>
                             <th scope="col" class="text-left p-2">[[#{usuario.nombre.label}]]</th>
                             <th scope="col" class="text-left p-2">[[#{usuario.apellido.label}]]</th>
-                            <th scope="col" class="text-left p-2">[[#{usuario.contrasena.label}]]</th>
+
                             <th scope="col" class="text-left p-2">[[#{usuario.email.label}]]</th>
                             <th scope="col" class="text-left p-2">[[#{usuario.telefono.label}]]</th>
                             <th scope="col" class="text-left p-2">[[#{usuario.rol.label}]]</th>
@@ -32,7 +33,7 @@
                             <td class="p-2">[[${usuario.idUsuario}]]</td>
                             <td class="p-2">[[${usuario.nombre}]]</td>
                             <td class="p-2">[[${usuario.apellido}]]</td>
-                            <td class="p-2">[[${usuario.contrasena}]]</td>
+
                             <td class="p-2">[[${usuario.email}]]</td>
                             <td class="p-2">[[${usuario.telefono}]]</td>
                             <td class="p-2">[[${usuario.rol}]]</td>
