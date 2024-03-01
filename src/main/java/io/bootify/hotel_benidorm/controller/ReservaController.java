@@ -1,9 +1,6 @@
 package io.bootify.hotel_benidorm.controller;
 
-import io.bootify.hotel_benidorm.domain.Descuento;
-import io.bootify.hotel_benidorm.domain.Habitacion;
-import io.bootify.hotel_benidorm.domain.ServiciosContratados;
-import io.bootify.hotel_benidorm.domain.Usuario;
+import io.bootify.hotel_benidorm.domain.*;
 import io.bootify.hotel_benidorm.model.CaracteristicasHabitacionDTO;
 import io.bootify.hotel_benidorm.model.ReservaDTO;
 import io.bootify.hotel_benidorm.model.ServiciosContratadosDTO;
@@ -229,7 +226,20 @@ public class ReservaController {
         }
 
 
-        return "redirect:/reservas";
+        return "redirect:/";
     }
 
+    @GetMapping("/add/reservascliente")
+    public String verClienteReserca(Model model) {
+        String email = ReservaService.obtenerNombreUsuarioActual();
+        Integer idUsuario = usuarioRepository.findIdByEmail(email);
+
+
+        List<ReservaDTO> reservasTotalesPorId = reservaService.findReservasByUsuarioId(idUsuario);
+
+        System.out.println(reservasTotalesPorId);
+        model.addAttribute("reservas_totales", reservasTotalesPorId);
+
+        return "reserva/ver_reservas_cliente";
+    }
 }

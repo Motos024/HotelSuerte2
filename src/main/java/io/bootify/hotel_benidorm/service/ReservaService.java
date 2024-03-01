@@ -14,6 +14,8 @@ import io.bootify.hotel_benidorm.repos.UsuarioRepository;
 import io.bootify.hotel_benidorm.util.NotFoundException;
 import io.bootify.hotel_benidorm.util.ReferencedWarning;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -129,6 +131,31 @@ public class ReservaService {
         reservaDTO.setUsuario(idUsuario);
         return reservaDTO;
     }
+
+
+
+    public List<ReservaDTO> findReservasByUsuarioId(Integer usuarioId) {
+        List<Reserva> reservas = reservaRepository.findAll();
+        // Aquí filtramos manualmente, idealmente deberías hacer esto a través de una consulta personalizada en el repositorio para mayor eficiencia
+        return reservas.stream()
+                .filter(reserva -> reserva.getUsuario() != null && reserva.getUsuario().getIdUsuario().equals(usuarioId))
+                .map(this::convertirAReservaDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ReservaDTO convertirAReservaDTO(Reserva reserva) {
+        // Implementa la lógica de conversión aquí
+        ReservaDTO dto = new ReservaDTO();
+        dto.setIdReserva(reserva.getIdReserva());
+        dto.setPrecioFinal(reserva.getPrecioFinal());
+        dto.setAdulto(reserva.getAdulto());
+        dto.setNinos(reserva.getNinos());
+        dto.setFechaInicio(reserva.getFechaInicio());
+        dto.setFechaFin(reserva.getFechaFin());
+        // set otros campos necesarios
+        return dto;
+    }
+
 
 
 }
