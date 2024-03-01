@@ -89,7 +89,7 @@ public class HabitacionService {
         return null;
     }
 
-    public List<Object[]> findHabitacionesDisponibles(Integer idCaracteristica, Date fechaInicio, Date fechaFin) {
+    public int findHabitacionesDisponibles(Integer idCaracteristica, Date fechaInicio, Date fechaFin) {
         return habitacionRepository.findHabitacionesDisponiblesPorCaracteristicaNative(idCaracteristica, fechaInicio, fechaFin);
     }
 

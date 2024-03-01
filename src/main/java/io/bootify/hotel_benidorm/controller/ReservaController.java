@@ -2,17 +2,17 @@ package io.bootify.hotel_benidorm.controller;
 
 import io.bootify.hotel_benidorm.domain.Descuento;
 import io.bootify.hotel_benidorm.domain.Habitacion;
+import io.bootify.hotel_benidorm.domain.ServiciosContratados;
 import io.bootify.hotel_benidorm.domain.Usuario;
-
 import io.bootify.hotel_benidorm.model.CaracteristicasHabitacionDTO;
 import io.bootify.hotel_benidorm.model.ReservaDTO;
+import io.bootify.hotel_benidorm.model.ServiciosContratadosDTO;
 import io.bootify.hotel_benidorm.model.ServiciosDTO;
 import io.bootify.hotel_benidorm.repos.DescuentoRepository;
 import io.bootify.hotel_benidorm.repos.HabitacionRepository;
+import io.bootify.hotel_benidorm.repos.ReservaRepository;
 import io.bootify.hotel_benidorm.repos.UsuarioRepository;
-import io.bootify.hotel_benidorm.service.CaracteristicasHabitacionService;
-import io.bootify.hotel_benidorm.service.ReservaService;
-import io.bootify.hotel_benidorm.service.ServiciosService;
+import io.bootify.hotel_benidorm.service.*;
 import io.bootify.hotel_benidorm.util.CustomCollectors;
 import io.bootify.hotel_benidorm.util.ReferencedWarning;
 import io.bootify.hotel_benidorm.util.WebUtils;
@@ -25,9 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.BooleanUtils.forEach;
@@ -46,17 +44,31 @@ public class ReservaController {
 
     private final ServiciosService serviciosService;
 
+    private final HabitacionService habitacionService;
+
+    private final ServiciosContratadosService serviciosContratadosService;
+
+    private final ReservaRepository reservaRepository;
+
     public ReservaController(final ReservaService reservaService,
                              final UsuarioRepository usuarioRepository,
                              final HabitacionRepository habitacionRepository,
-                             final DescuentoRepository descuentoRepository, final CaracteristicasHabitacionService caracteristicasHabitacionService, final ServiciosService serviciosService
-                             ) {
+                             final DescuentoRepository descuentoRepository,
+                             final CaracteristicasHabitacionService caracteristicasHabitacionService,
+                             final ServiciosService serviciosService,
+    final ServiciosContratadosService serviciosContratadosService,
+    final ReservaRepository reservaRepository,
+
+    final HabitacionService habitacionService) {
         this.reservaService = reservaService;
         this.usuarioRepository = usuarioRepository;
         this.habitacionRepository = habitacionRepository;
         this.descuentoRepository = descuentoRepository;
         this.caracteristicasHabitacionService=caracteristicasHabitacionService;
         this.serviciosService=serviciosService;
+        this.habitacionService=habitacionService;
+        this.serviciosContratadosService=serviciosContratadosService;
+        this.reservaRepository=reservaRepository;
     }
 
     @ModelAttribute
@@ -129,38 +141,18 @@ public class ReservaController {
         return "redirect:/reservas";
     }
 
- /*   @GetMapping("/add/cliente")
-
-    public String addCliente(@ModelAttribute("reserva") final ReservaDTO reservaDTO,
-                             @ModelAttribute("tipos_habitacion") final List<CaracteristicasHabitacionDTO> caracteristicasHabitacionDTO ) {
-        String email = ReservaService.obtenerNombreUsuarioActual();
-       Integer idUsuario = usuarioRepository.findIdByEmail(email);
-        reservaService.prereserva(reservaDTO);
-        caracteristicasHabitacionService.total_tipos_habitacion(caracteristicasHabitacionDTO);
-
-        System.out.println("El nombre del usuario actual es: " + idUsuario);
-        System.out.println(caracteristicasHabitacionService.findAll());
-        System.out.println(caracteristicasHabitacionService.total_tipos_habitacion(caracteristicasHabitacionDTO));
-        System.out.println(reservaDTO);
-
-        return "reserva/add_cliente";
-    }*/
 
     @GetMapping("/add/cliente")
     public String addCliente(Model model) {
         String email = ReservaService.obtenerNombreUsuarioActual();
         Integer idUsuario = usuarioRepository.findIdByEmail(email);
 
-        ReservaDTO reservaDTO = new ReservaDTO(); // Asume que tienes una instancia de esto
+        ReservaDTO reservaDTO = new ReservaDTO();
         List<CaracteristicasHabitacionDTO> caracteristicasHabitacionDTO = caracteristicasHabitacionService.findAll();
         List<ServiciosDTO> total_servicios = serviciosService.findAll();
 
-        //reservaService.prereserva(reservaDTO);
         caracteristicasHabitacionService.total_tipos_habitacion();
 
-
-        System.out.println("El nombre del usuario actual es: " + idUsuario);
-        //System.out.println(caracteristicasHabitacionDTO);
         model.addAttribute("reserva",  reservaService.prereserva(reservaDTO));
         model.addAttribute("tipos_habitacion", caracteristicasHabitacionDTO);
         model.addAttribute("servicios", total_servicios);
@@ -169,45 +161,75 @@ public class ReservaController {
     }
 
 
- /*   @PostMapping("/add/cliente")
-    public String addCliente(@ModelAttribute("reserva") @Valid final ReservaDTO reservaDTO,
-                      final BindingResult bindingResult, final RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            return "reserva/add";
-        }
-        reservaService.create(reservaDTO);
-        redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, WebUtils.getMessage("reserva.create.success"));
-        return "redirect:/reservas";
-    }*/
-
-
 
     @PostMapping("/add/cliente")
     public String procesarSeleccionHabitacionYServicios(
             @RequestParam(name = "idCaracteristicaSeleccionada", required = false) Integer idCaracteristicaSeleccionada,
             @RequestParam(name = "serviciosSeleccionados", required = false) List<Integer> serviciosSeleccionados,
-            @ModelAttribute ReservaDTO reservaDTO, Model model
+            @ModelAttribute ReservaDTO reservaDTO, Model model,RedirectAttributes redirectAttributes
             ) {
 
-        // Procesar la característica de habitación seleccionada
-        if (idCaracteristicaSeleccionada != null) {
-            System.out.println("Característica de habitación seleccionada: ID=" + idCaracteristicaSeleccionada);
-        } else {
-            System.out.println("No se seleccionó ninguna característica de habitación.");
+        redirectAttributes.addFlashAttribute("reserva", reservaDTO);
+        redirectAttributes.addFlashAttribute("tipos_habitacion", idCaracteristicaSeleccionada);
+        redirectAttributes.addFlashAttribute("servicios", serviciosSeleccionados);
+
+        return "redirect:pago";
+    }
+
+
+    @GetMapping("/add/pago")
+    public String addPago() {
+
+        return "reserva/pago";
+    }
+
+    @PostMapping("/add/pago")
+    public String procesarpago(
+            @RequestParam(name = "idCaracteristicaSeleccionada", required = false) Integer idCaracteristicaSeleccionada,
+            @RequestParam(name = "serviciosSeleccionados", required = false) String serviciosSeleccionadosStr,
+            @ModelAttribute ReservaDTO reservaDTO
+    ) {
+
+
+        List<Integer> serviciosSeleccionados = new ArrayList<>();
+        if (serviciosSeleccionadosStr != null && !serviciosSeleccionadosStr.isEmpty()) {
+            // Convertir la cadena a una lista de Integer
+            serviciosSeleccionados = Arrays.stream(serviciosSeleccionadosStr.replace("[", "").replace("]", "").split(","))
+                    .map(String::trim)
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
         }
 
-        // Procesar los servicios seleccionados
+
+        String email = ReservaService.obtenerNombreUsuarioActual();
+        Integer idUsuario = usuarioRepository.findIdByEmail(email);
+
+        Date fechaInicio = Date.from(reservaDTO.getFechaInicio().toInstant());
+        Date fechaFin = Date.from(reservaDTO.getFechaFin().toInstant());
+
+
+
+
+
+        reservaDTO.setUsuario(idUsuario);
+        reservaDTO.setHabitacion(habitacionService.findHabitacionesDisponibles(idCaracteristicaSeleccionada, fechaInicio, fechaFin));
+        reservaService.create(reservaDTO);
+
+        ServiciosContratadosDTO serviciosContratadosDTO = new ServiciosContratadosDTO();
+        serviciosContratadosDTO.setReserva( reservaRepository.findUltimaReservaPorUsuarioNative(idUsuario));
+
+
         if (serviciosSeleccionados != null && !serviciosSeleccionados.isEmpty()) {
-            serviciosSeleccionados.forEach(servicioId ->
-                    System.out.println("Servicio seleccionado: ID=" + servicioId));
+            serviciosSeleccionados.forEach(servicioId -> {
+                serviciosContratadosDTO.setServicio(servicioId);
+                serviciosContratadosService.create(serviciosContratadosDTO);
+            });
         } else {
             System.out.println("No se seleccionaron servicios.");
         }
 
-        System.out.println(reservaDTO);
-        // Redireccionar a una página de confirmación o mostrar mensaje de éxito
+
         return "redirect:/reservas";
     }
-
 
 }

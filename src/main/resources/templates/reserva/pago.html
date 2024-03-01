@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pasarela de Pago de Prueba</title>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 150px;
+        padding: 20px;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+    }
+
+    form {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px; /* Ajuste según necesidad, pero más estrecho para formularios de pago */
+        margin: 20px;
+    }
+
+    div {
+        margin-bottom: 10px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #666;
+    }
+
+    input[type="number"],
+    input[type="text"],
+    button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 10px;
+        }
+
+        form {
+            padding: 10px;
+            margin: 10px;
+            max-width: none; /* Permite que el formulario se expanda en pantallas pequeñas */
+        }
+    }
+</style>
+<body>
+
+
+
+<form th:action="${requestUri}" method="post">
+    <h2>Pasarela de pago</h2>
+
+    <!-- Mensaje de éxito oculto inicialmente -->
+    <div id="mensajeExito" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #28a745; color: white; padding: 20px; border-radius: 5px; font-size: 20px;">
+        Compra realizada con éxito
+    </div>
+    <div>
+        <label for="precioFinal">Precio Final en €:</label>
+        <input type="number" id="precioFinal" name="precioFinal" th:value="${reserva.precioFinal}" required readonly />
+    </div>
+
+    <input type="hidden" id="adulto" name="adulto" th:value="${reserva.adulto}" required />
+    <input type="hidden" id="ninos" name="ninos" th:value="${reserva.ninos}" required />
+    <input type="hidden" id="fechaInicio" name="fechaInicio" th:value="${reserva.fechaInicio}" required />
+    <input type="hidden" id="fechaFin" name="fechaFin" th:value="${reserva.fechaFin}" required />
+
+    <input type="hidden" id="idCaracteristicaSeleccionada" name="idCaracteristicaSeleccionada" th:value="${tipos_habitacion}" />
+   <input type="hidden" id="serviciosSeleccionados" name="serviciosSeleccionados" th:value="${servicios}" />
+
+    <div>
+        <label for="nombreTitular">Nombre del Titular:</label>
+        <input type="text" id="nombreTitular" name="nombreTitular"  required/>
+    </div>
+    <div>
+        <label for="numeroTarjeta">Número de Tarjeta:</label>
+        <input type="text" id="numeroTarjeta" name="numeroTarjeta" value="1234567890123456" pattern="\d{16}" required/>
+    </div>
+    <div>
+        <label for="fechaCaducidad">Fecha de Caducidad (MM/AA):</label>
+        <input type="text" id="fechaCaducidad" name="fechaCaducidad" value="12/26" pattern="\d{2}/\d{2}" required/>
+    </div>
+
+    <div>
+        <label for="cvv">CVV:</label>
+        <input type="text" id="cvv" name="cvv" value="123" pattern="\d{3}" required/>
+    </div>
+    <div>
+        <button type="submit">Pagar</button>
+    </div>
+</form>
+
+</body>
+</html>
+
+<script>
+    // Esperar a que el DOM se cargue completamente
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obtener el formulario por su elemento
+        var form = document.querySelector('form');
+
+        // Añadir un evento 'submit' al formulario
+        form.addEventListener('submit', function(event) {
+            // Prevenir el envío inmediato del formulario
+            event.preventDefault();
+
+            // Mostrar mensaje de éxito
+            alert('Compra realizada con éxito');
+
+            // Opcional: Retrasar el envío del formulario para dar tiempo a leer el mensaje
+            setTimeout(function() {
+                form.submit(); // Enviar el formulario después de 2 segundos
+            }, 1);
+        });
+    });
+</script>

@@ -3,39 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <title>Añadir Cliente</title>
+
+    <style>
+         body {
+             font-family: Arial, sans-serif;
+             margin: 18px;
+             padding: 20px;
+             background-color: #f4f4f4;
+             display: flex;
+             justify-content: center;
+             align-items: flex-start;
+             min-height: 100vh;
+         }
+
+         h2 {
+             color: #333;
+         }
+
+         form {
+             background: white;
+             padding: 20px;
+             border-radius: 8px;
+             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+             width: 100%;
+             max-width: 600px; /* Limita el ancho máximo del formulario */
+             margin: 20px;
+         }
+
+         div {
+             margin-bottom: 10px;
+         }
+
+         label {
+             display: block;
+             margin-bottom: 5px;
+             color: #666;
+         }
+
+         input[type="number"],
+         input[type="datetime-local"],
+         select,
+         button {
+             width: 100%;
+             padding: 10px;
+             margin-top: 5px;
+             border-radius: 5px;
+             border: 1px solid #ddd;
+             box-sizing: border-box;
+         }
+
+         button {
+             background-color: #5cb85c;
+             color: white;
+             border: none;
+             cursor: pointer;
+         }
+
+         button:hover {
+             background-color: #4cae4c;
+         }
+
+         .form-control {
+             display: block;
+             width: 100%;
+         }
+
+         .services-container {
+             border: 1px solid #eee;
+             padding: 10px;
+             border-radius: 5px;
+         }
+
+         @media (max-width: 600px) {
+             body {
+                 padding: 10px;
+             }
+
+             form {
+                 padding: 10px;
+                 margin: 10px;
+                 max-width: none;
+             }
+         }
+     </style>
 </head>
 <body>
 
-<h2>Añadir Reserva de Cliente</h2>
+
 
 <form th:action="${requestUri}" method="post" id="formularioReserva">
-    <!-- Precio Final -->
 
+    <h2>Complete su reserva</h2>
 
-    <!-- Adultos -->
+    <br>
     <div>
         <label for="adulto">Adultos:</label>
         <input type="number" id="adulto" name="adulto" th:value="${reserva.adulto}" required />
     </div>
 
-    <!-- Niños -->
+    <br>
     <div>
         <label for="ninos">Niños:</label>
         <input type="number" id="ninos" name="ninos" th:value="${reserva.ninos}" />
     </div>
 
-    <!-- Fecha Inicio -->
+    <br>
     <div>
         <label for="fechaInicio">Fecha Inicio:</label>
-        <input type="datetime-local" id="fechaInicio" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}" name="fechaInicio" th:value="*{reserva.fechaInicio}" />
+        <input type="datetime-local" id="fechaInicioVisible" name="fechaInicioVisible" required />
     </div>
+    <br>
     <div>
         <label for="fechaFin">Fecha Fin:</label>
-        <input type="datetime-local" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}" id="fechaFin" name="fechaFin" th:value="*{reserva.fechaFin}" />
+        <input type="datetime-local" id="fechaFinVisible" name="fechaFinVisible" required />
     </div>
+    <br>
+    <input type="hidden" id="fechaInicio" name="fechaInicio" />
+    <input type="hidden" id="fechaFin" name="fechaFin" />
+
+    <br>
     <div th:if="${tipos_habitacion != null}">
         <label for="caracteristicaSeleccionada">Seleccione tipo de Habitación:</label>
-        <select id="caracteristicaSeleccionada" name="idCaracteristicaSeleccionada" class="form-control">
+        <select id="caracteristicaSeleccionada" name="idCaracteristicaSeleccionada" class="form-control" required>
             <option value="">-- Seleccione una opción --</option>
             <option th:each="caracteristica : ${tipos_habitacion}"
                     th:value="${caracteristica.idCaracteristica}"
@@ -44,6 +133,8 @@
         </select>
     </div>
 
+
+    <br>
     <div th:if="${servicios != null}" class="form-group services-container">
         <label>Seleccione servicios:</label>
         <div th:each="servicio, stat : ${servicios}">
@@ -51,32 +142,35 @@
             <label th:for="${'servicio' + stat.index}" th:text="${servicio.tipoServicio + ' - Precio: ' + servicio.precio}">Servicio</label>
         </div>
     </div>
+    <br>
 
     <div>
-        <label for="precioFinal">Precio Final:</label>
-        <input type="number" id="precioFinal" name="precioFinal" th:value="${reserva.precioFinal}" required />
+        <label for="precioFinal">Precio Final en €:</label>
+        <input type="number" id="precioFinal" name="precioFinal" th:value="${reserva.precioFinal}" required readonly />
     </div>
+
+    <br>
     <div>
         <button type="submit">Reservar</button>
     </div>
 </form>
 
 
-<!--<script>
+
+
+<script>
     document.addEventListener('DOMContentLoaded', function () {
         const caracteristicaSeleccionada = document.getElementById('caracteristicaSeleccionada');
         const serviciosSeleccionados = document.querySelectorAll('input[type="checkbox"]');
-        const fechaInicio = document.getElementById('fechaInicio');
-        const fechaFin = document.getElementById('fechaFin');
+        const fechaInicio = document.getElementById('fechaInicioVisible');
+        const fechaFin = document.getElementById('fechaFinVisible');
         const precioFinal = document.getElementById('precioFinal');
 
-        // Extraer el precio desde la opción seleccionada
         function extraerPrecio(option) {
             const precioTexto = option.text.split(' - Precio: ')[1];
             return parseFloat(precioTexto) || 0;
         }
 
-        // Calcular la diferencia en días entre dos fechas
         function calcularDias(fechaInicio, fechaFin) {
             const inicio = new Date(fechaInicio.value);
             const fin = new Date(fechaFin.value);
@@ -85,7 +179,6 @@
             return dias > 0 ? dias : 0;
         }
 
-        // Calcular el precio total de los servicios seleccionados
         function calcularPrecioServicios() {
             let precioServicios = 0;
             serviciosSeleccionados.forEach(function(servicio) {
@@ -109,87 +202,21 @@
         fechaInicio.addEventListener('change', actualizarPrecioFinal);
         fechaFin.addEventListener('change', actualizarPrecioFinal);
         serviciosSeleccionados.forEach(servicio => servicio.addEventListener('change', actualizarPrecioFinal));
-    });
-</script>-->
 
+        // Código del segundo script integrado aquí
+        document.getElementById('formularioReserva').addEventListener('submit', function(e) {
+            e.preventDefault();
 
-<!--<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const formularioReserva = document.getElementById('formularioReserva');
-        const caracteristicaSeleccionada = document.getElementById('caracteristicaSeleccionada');
-        const serviciosSeleccionados = document.querySelectorAll('input[type="checkbox"]');
-        const fechaInicioInput = document.getElementById('fechaInicio');
-        const fechaFinInput = document.getElementById('fechaFin');
-        const precioFinal = document.getElementById('precioFinal');
+            var fechaInicioVisible = document.getElementById('fechaInicioVisible').value;
+            var fechaFinVisible = document.getElementById('fechaFinVisible').value;
 
-        formularioReserva.addEventListener('submit', function(event) {
-            event.preventDefault(); // Previene el envío normal del formulario
+            document.getElementById('fechaInicio').value = fechaInicioVisible + ':00Z';
+            document.getElementById('fechaFin').value = fechaFinVisible + ':00Z';
 
-            // Asume que quieres usar medianoche como la hora de inicio y fin
-            // y ajusta las fechas para incluir la zona horaria
-            ajustarFechasConZonaHoraria();
-
-            // Continúa con el envío del formulario después de ajustar las fechas
-            formularioReserva.submit();
+            this.submit();
         });
-
-        // Función para ajustar las fechas con la zona horaria
-        function ajustarFechasConZonaHoraria() {
-            const zonaHorariaOffset = -new Date().getTimezoneOffset() * 60; // Offset en segundos
-            const signo = zonaHorariaOffset >= 0 ? '+' : '-';
-            const pad = (num) => num < 10 ? '0' + num : num;
-            const offsetHoras = pad(Math.floor(Math.abs(zonaHorariaOffset) / 3600));
-            const offsetMinutos = pad((Math.abs(zonaHorariaOffset) % 3600) / 60);
-            const zonaHorariaString = signo + offsetHoras + ':' + offsetMinutos;
-
-            if (fechaInicioInput.value) {
-                fechaInicioInput.value += 'T00:00:00' + zonaHorariaString;
-            }
-            if (fechaFinInput.value) {
-                fechaFinInput.value += 'T00:00:00' + zonaHorariaString;
-            }
-        }
-
-        // Escuchadores de eventos y funciones para actualizar el precio final
-        caracteristicaSeleccionada.addEventListener('change', actualizarPrecioFinal);
-        fechaInicioInput.addEventListener('change', actualizarPrecioFinal);
-        fechaFinInput.addEventListener('change', actualizarPrecioFinal);
-        serviciosSeleccionados.forEach(servicio => servicio.addEventListener('change', actualizarPrecioFinal));
-
-        function extraerPrecio(option) {
-            const precioTexto = option.text.split(' - Precio: ')[1];
-            return parseFloat(precioTexto) || 0;
-        }
-
-        function calcularDias(fechaInicio, fechaFin) {
-            const inicio = new Date(fechaInicio.value);
-            const fin = new Date(fechaFin.value);
-            const diferencia = fin - inicio;
-            const dias = diferencia / (1000 * 60 * 60 * 24);
-            return dias > 0 ? dias : 0;
-        }
-
-        function calcularPrecioServicios() {
-            let precioServicios = 0;
-            serviciosSeleccionados.forEach(function(servicio) {
-                if(servicio.checked) {
-                    const precioTexto = servicio.nextElementSibling.textContent.split(' - Precio: ')[1];
-                    precioServicios += parseFloat(precioTexto) || 0;
-                }
-            });
-            return precioServicios;
-        }
-
-        function actualizarPrecioFinal() {
-            const precioHabitacion = extraerPrecio(caracteristicaSeleccionada.options[caracteristicaSeleccionada.selectedIndex]);
-            const precioServicios = calcularPrecioServicios();
-            const dias = calcularDias(fechaInicioInput, fechaFinInput);
-            const precioCalculado = (precioHabitacion + precioServicios) * dias;
-            precioFinal.value = precioCalculado.toFixed(2);
-        }
     });
-</script>-->
-
+</script>
 
 </body>
 </html>
